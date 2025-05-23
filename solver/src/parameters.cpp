@@ -145,6 +145,12 @@ std::vector<double> SOLVER_DERIV_SECOND_COEFFS = {};
 unsigned int SOLVER_DERIV_FIRST_MATID = 1;
 unsigned int SOLVER_DERIV_SECOND_MATID = 1;
 
+
+std::string SOLVER_INMATFILT_FIRST             = "none";
+std::string SOLVER_INMATFILT_SECOND            = "none";
+std::vector<double> SOLVER_INMATFILT_FIRST_COEFFS              = {};
+std::vector<double> SOLVER_INMATFILT_SECOND_COEFFS             = {};
+
 // default initialization
 // this *MUST* be initialized
 std::unique_ptr<dendroderivs::DendroDerivatives> SOLVER_DERIVS = nullptr;
@@ -752,6 +758,20 @@ void readParamFile(const char* inFile, MPI_Comm comm) {
         SOLVER_DERIV_SECOND_MATID =
             file["SOLVER_DERIV_SECOND_MATID"].as_integer();
     }
+    if (file.contains("SOLVER_INMATFILT_FIRST")) {
+        SOLVER_INMATFILT_FIRST = file["SOLVER_INMATFILT_FIRST"].as_string();
+    }
+    if (file.contains("SOLVER_INMATFILT_SECOND")) {
+        SOLVER_INMATFILT_SECOND = file["SOLVER_INMATFILT_SECOND"].as_string();
+    }
+    if (file.contains("SOLVER_INMATFILT_FIRST_COEFFS")) {
+        SOLVER_INMATFILT_FIRST_COEFFS = toml::find<std::vector<double>>(
+            file, "SOLVER_INMATFILT_FIRST_COEFFS");
+    }
+    if (file.contains("SOLVER_INMATFILT_SECOND_COEFFS")) {
+        SOLVER_INMATFILT_SECOND_COEFFS = toml::find<std::vector<double>>(
+            file, "SOLVER_INMATFILT_SECOND_COEFFS");
+    }
 
     // COMPD_MIN and COMPD_MAX should be the same as the grid
     dsolve::SOLVER_COMPD_MIN[0] = dsolve::SOLVER_GRID_MIN_X;
@@ -775,7 +795,9 @@ void readParamFile(const char* inFile, MPI_Comm comm) {
     SOLVER_DERIVS = std::make_unique<dendroderivs::DendroDerivatives>(
         SOLVER_DERIVTYPE_FIRST, SOLVER_DERIVTYPE_SECOND, SOLVER_ELE_ORDER,
         SOLVER_DERIV_FIRST_COEFFS, SOLVER_DERIV_SECOND_COEFFS,
-        SOLVER_DERIV_FIRST_MATID, SOLVER_DERIV_SECOND_MATID);
+        SOLVER_DERIV_FIRST_MATID, SOLVER_DERIV_SECOND_MATID,
+        SOLVER_INMATFILT_FIRST, SOLVER_INMATFILT_SECOND,
+        SOLVER_INMATFILT_FIRST_COEFFS, SOLVER_INMATFILT_SECOND_COEFFS);
 
     // TODO: COMPD_MIN, COMPD_MAX should be GRID_MIN and GRID_MAX, not settable
     // by user
