@@ -20,6 +20,7 @@
 #include "derivs.h"
 #include "grDef.h"
 #include "grUtils.h"
+#include "meshUtils.h"
 #include "parameters.h"
 #include "profile_params.h"
 
@@ -1473,11 +1474,15 @@ int SOLVERCtx::terminal_output() {
                                     (m_uiMesh->getNumLocalMeshNodes()),
                                     m_uiMesh->getMPICommunicator());
 
+            double l2_integrated =
+                ot::calculateL2FullMeshIntegration(m_uiMesh, zippedUp[v]);
+
             if (!(m_uiMesh->getMPIRank())) {
                 std::cout << "\t[var]:  " << std::setw(12)
                           << SOLVER_VAR_NAMES[v];
-                std::cout << " (min, max, l2) : \t ( " << l_min << ", " << l_max
-                          << ", " << l2_norm << ") " << std::endl;
+                std::cout << " (min, max, l2, l2_int) : \t ( " << l_min << ", "
+                          << l_max << ", " << l2_norm << ", " << l2_integrated
+                          << ") " << std::endl;
             }
         }
 
@@ -1509,6 +1514,8 @@ int SOLVERCtx::terminal_output() {
                     fileDiff
                         << std::string(SOLVER_VAR_NAMES[v]) + "_DIFF_NRMSE,";
                     fileDiff << std::string(SOLVER_VAR_NAMES[v]) + "_DIFF_MAE,";
+                    fileDiff
+                        << std::string(SOLVER_VAR_NAMES[v]) + "_DIFF_L2_INT,";
                 }
 
 #ifdef SOLVER_COMPUTE_CONSTRAINTS
@@ -1521,7 +1528,9 @@ int SOLVERCtx::terminal_output() {
                              << std::string(SOLVER_VAR_CONSTRAINT_NAMES[v])
                              << "_MAX,"
                              << std::string(SOLVER_VAR_CONSTRAINT_NAMES[v])
-                             << "_L2,";
+                             << "_L2,"
+                             << std::string(SOLVER_VAR_CONSTRAINT_NAMES[v])
+                             << "_L2_INT,";
                 }
 #endif
 
@@ -1530,7 +1539,7 @@ int SOLVERCtx::terminal_output() {
             }
         }
 
-        DendroScalar *zippedUpAnalyticalDiff[SOLVER_NUM_VARS];
+       DendroScalar *zippedUpAnalyticalDiff[SOLVER_NUM_VARS];
         m_var[VL::CPU_ANALYTIC_DIFF].to_2d(zippedUpAnalyticalDiff);
 
         for (unsigned int i = 0; i < dsolve::SOLVER_NUM_CONSOLE_OUTPUT_VARS;
@@ -1548,6 +1557,9 @@ int SOLVERCtx::terminal_output() {
                 &zippedUpAnalyticalDiff[v][m_uiMesh->getNodeLocalBegin()],
                 (m_uiMesh->getNumLocalMeshNodes()),
                 m_uiMesh->getMPICommunicator());
+
+            double l2_integrated = ot::calculateL2FullMeshIntegration(
+                m_uiMesh, zippedUpAnalyticalDiff[v]);
 
             double rmse = normRMSE(
                 &zippedUpAnalyticalDiff[v][m_uiMesh->getNodeLocalBegin()],
@@ -1568,10 +1580,10 @@ int SOLVERCtx::terminal_output() {
             if (!(m_uiMesh->getMPIRankGlobal())) {
                 std::cout << "\t[var]:  " << std::setw(12)
                           << std::string(SOLVER_VAR_NAMES[v]) + "_DIFF";
-                std::cout << " (min, max, l2, rmse, nrmse, mae) : \t ( "
+                std::cout << " (min, max, l2, rmse, nrmse, mae, l2_int) : \t ( "
                           << l_min << ", " << l_max << ", " << l2_norm << ", "
-                          << rmse << ", " << nrmse << ", " << mae << ") "
-                          << std::endl;
+                          << rmse << ", " << nrmse << ", " << mae << ", "
+                          << l2_integrated << ") " << std::endl;
 
                 // write to file
                 std::ofstream fileDiff;
@@ -1583,7 +1595,8 @@ int SOLVERCtx::terminal_output() {
                 }
 
                 fileDiff << l_min << "," << l_max << "," << l2_norm << ","
-                         << rmse << "," << nrmse << "," << mae << ",";
+                         << rmse << "," << nrmse << "," << mae << "," << ","
+                         << l2_integrated;
                 fileDiff.close();
             }
         }
@@ -1620,11 +1633,15 @@ int SOLVERCtx::terminal_output() {
                        (m_uiMesh->getNumLocalMeshNodes()),
                        m_uiMesh->getMPICommunicator());
 
+            double l2_integrated = ot::calculateL2FullMeshIntegration(
+                m_uiMesh, zippedUpConstraints[v]);
+
             if (!(m_uiMesh->getMPIRank())) {
                 std::cout << "\t[const]:" << std::setw(12)
                           << std::string(SOLVER_VAR_CONSTRAINT_NAMES[v]);
-                std::cout << " (min, max, l2) : \t ( " << l_min << ", " << l_max
-                          << ", " << l2_norm << ") " << std::endl;
+                std::cout << " (min, max, l2, l2_int) : \t ( " << l_min << ", "
+                          << l_max << ", " << l2_norm << ", " << l2_integrated
+                          << ") " << std::endl;
 
                 // write to file
                 std::ofstream fileDiff;
@@ -1635,7 +1652,8 @@ int SOLVERCtx::terminal_output() {
                              << this->m_uiTinfo._m_uiT << ",";
                 }
 
-                fileDiff << l_min << "," << l_max << "," << l2_norm << ",";
+                fileDiff << l_min << "," << l_max << "," << l2_norm << ","
+                         << l2_integrated << ",";
                 fileDiff.close();
             }
         }
