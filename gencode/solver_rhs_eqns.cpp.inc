@@ -1,5 +1,5 @@
 // Dendro: {{{ 
-// Dendro: original ops:  54
+// Dendro: original ops:  49
 // Dendro: printing temp variables
 double DENDRO_0 = 4.0*PI;
 
@@ -19,7 +19,6 @@ E_rhs2[pp] = -DENDRO_0*J2[pp] + grad_2_Gamma[pp] - grad2_0_0_A2[pp] - grad2_1_1_
 //--
 Gamma_rhs[pp] = -DENDRO_0*rho_e[pp] - grad2_0_0_psi[pp] - grad2_1_1_psi[pp] - grad2_2_2_psi[pp];
 //--
-psi_rhs[pp] = -grad_0_A0[pp] - grad_1_A1[pp] - grad_2_A2[pp];
-// Dendro: reduced ops:  51
+psi_rhs[pp] = -Gamma[pp];
+// Dendro: reduced ops:  46
 // Dendro: }}} 
-

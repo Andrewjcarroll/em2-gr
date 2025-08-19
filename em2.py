@@ -31,8 +31,8 @@ E_rhs = [ - sum( d2(j,j,A[i]) for j in dendro.e_i ) + d(i,Gamma) - 4.0 * PI * J[
 
 Gamma_rhs = - sum( d2(j,j,psi) for j in dendro.e_i ) - 4.0 * PI * rho_e 
 
-psi_rhs = -sum((d(i,A[i]) for i in dendro.e_i ))
-#psi_rhs = - Gamma
+#psi_rhs = -sum((d(i,A[i]) for i in dendro.e_i ))
+psi_rhs = - Gamma
 
 #divE = sum( d(i,E[i]) for i in dendro.e_i ) - 4.0 * PI * rho_e 
 
