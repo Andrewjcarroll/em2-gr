@@ -32,19 +32,24 @@ RK_SOLVER::RK_SOLVER(ot::Mesh *pMesh, DendroScalar pTBegin, DendroScalar pTEnd,
     for (unsigned int index = 0; index < dsolve::SOLVER_NUM_VARS; index++)
         m_uiVarIm[index] = m_uiMesh->createVector<DendroScalar>();
 
-    if (m_uiRKType == RKType::RK3)
+  switch (m_uiRKType) {
+    case RKType::RK3:
         m_uiNumRKStages = dsolve::SOLVER_RK3_STAGES;
-    else if (m_uiRKType == RKType::RK4)
+        break;
+    case RKType::RK4:
         m_uiNumRKStages = dsolve::SOLVER_RK4_STAGES;
-    else if (m_uiRKType == RKType::RK45)
-        m_uiNumRKStages = dsolve::SOLVER_RK45_STAGES;
-    else {
-        if (!(pMesh->getMPIRankGlobal()))
-            std::cout << "[RK Solver Error]: undefined rk solver type"
-                      << std::endl;
+        break;
+    case RKType::RKF45:
+        m_uiNumRKStages = dsolve::SOLVER_RK45_STAGES; // classic Fehlberg
+        break;
+    default:
+        if (!(pMesh->getMPIRankGlobal())) {
+            std::cerr << "[RK Solver Error]: undefined rk solver type "
+                      << static_cast<int>(m_uiRKType) << std::endl;
+        }
+        std::abort();
+}
 
-        exit(0);
-    }
 
     m_uiStage = new DendroScalar **[m_uiNumRKStages];
     for (unsigned int stage = 0; stage < m_uiNumRKStages; stage++) {
@@ -1614,7 +1619,7 @@ void RK_SOLVER::performSingleIteration() {
         } else if (m_uiRKType == RKType::RK4) {
             // rk4 solver
             performSingleIterationRK4();
-        } else if (m_uiRKType == RKType::RK45) {
+        } else if (m_uiRKType == RKType::RKF45) {
             // rk45 solver
             performSingleIterationRK45();
         }

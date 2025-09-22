@@ -305,9 +305,14 @@ int main(int argc, char** argv) {
             ets->set_ets_coefficients(ts::ETSType::RK3);
         else if ((RKType)dsolve::SOLVER_RK_TYPE == RKType::RK4)
             ets->set_ets_coefficients(ts::ETSType::RK4);
-        else if ((RKType)dsolve::SOLVER_RK_TYPE == RKType::RK45)
+        else if ((RKType)dsolve::SOLVER_RK_TYPE == RKType::RK5)
             ets->set_ets_coefficients(ts::ETSType::RK5);
-
+         else if ((RKType)dsolve::SOLVER_RK_TYPE == RKType::RK4_RALSTON)
+            ets->set_ets_coefficients(ts::ETSType::RK4_RALSTON);
+        else if ((RKType)dsolve::SOLVER_RK_TYPE == RKType::RK45_CASH_KARP)
+            ets->set_ets_coefficients(ts::ETSType::RK45_CASH_KARP);
+        else if ((RKType)dsolve::SOLVER_RK_TYPE == RKType::RKF45)
+            ets->set_ets_coefficients(ts::ETSType::RKF45);
         if (!rank) {
             std::cout << CYN << BLD << "Now initializing time stepper..." << NRM
                       << std::endl;
