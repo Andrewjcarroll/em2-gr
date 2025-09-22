@@ -34,7 +34,7 @@
      dsolve::SOLVER_OCTREE_MIN[2])
 
 // type of the rk method.
-enum RKType { RK3 = 0, RK4, RK45 };
+enum RKType { RK3 = 0, RK4, RK5, RK45_CASH_KARP,RK45   };
 
 namespace dsolve {
 // clang-format off
