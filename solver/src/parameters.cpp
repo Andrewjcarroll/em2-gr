@@ -4,7 +4,7 @@
 #include "compact_derivs.h"
 #include "derivatives.h"
 #include "parUtils.h"
-
+#define PRPL "\033[95m"
 /**
  * Global parameters used across the program
  *
@@ -1051,6 +1051,38 @@ void dumpParamFile(std::ostream& sout, int root, MPI_Comm comm) {
         sout << "\tdsolve::SOLVER_GRID_MAX_Z: " << dsolve::SOLVER_GRID_MAX_Z
              << std::endl;
         sout << "\tDERIVS USE: " << SOLVER_DERIVS->toString() << std::endl;
+        
+          sout << PRPL << "\t SOLVER_DERIVTYPE_FIRST:  " << SOLVER_DERIVTYPE_FIRST
+             << std::endl;
+        sout << PRPL << "\t SOLVER_DERIVTYPE_SECOND: " << SOLVER_DERIVTYPE_SECOND
+             << std::endl;
+
+        sout << PRPL << "\t SOLVER_DERIV_FIRST_COEFFS:  ";
+        for (const auto& val : SOLVER_DERIV_FIRST_COEFFS) sout << val << " ";
+        sout << std::endl;
+
+        sout << PRPL << "\t SOLVER_DERIV_SECOND_COEFFS: ";
+        for (const auto& val : SOLVER_DERIV_SECOND_COEFFS) sout << val << " ";
+        sout << std::endl;
+
+        sout << PRPL << "\t SOLVER_DERIV_FIRST_MATID:  " << SOLVER_DERIV_FIRST_MATID
+             << std::endl;
+        sout << PRPL
+             << "\t SOLVER_DERIV_SECOND_MATID: " << SOLVER_DERIV_SECOND_MATID
+             << std::endl;
+
+        sout << PRPL << "\t SOLVER_INMATFILT_FIRST:  " << SOLVER_INMATFILT_FIRST
+             << std::endl;
+        sout << PRPL << "\t SOLVER_INMATFILT_SECOND: " << SOLVER_INMATFILT_SECOND
+             << std::endl;
+
+        sout << PRPL << "\t SOLVER_INMATFILT_FIRST_COEFFS:  ";
+        for (const auto& val : SOLVER_INMATFILT_FIRST_COEFFS) sout << val << " ";
+        sout << NRM << std::endl;
+
+        sout << PRPL << "\t SOLVER_INMATFILT_SECOND_COEFFS: ";
+        for (const auto& val : SOLVER_INMATFILT_SECOND_COEFFS) sout << val << " ";
+        sout << NRM << std::endl;
     }
 }
 }  // namespace dsolve
