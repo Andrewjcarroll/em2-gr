@@ -151,6 +151,7 @@ std::string SOLVER_INMATFILT_SECOND            = "none";
 std::vector<double> SOLVER_INMATFILT_FIRST_COEFFS              = {};
 std::vector<double> SOLVER_INMATFILT_SECOND_COEFFS             = {};
 
+
 // default initialization
 // this *MUST* be initialized
 std::unique_ptr<dendroderivs::DendroDerivatives> SOLVER_DERIVS = nullptr;
@@ -1083,6 +1084,16 @@ void dumpParamFile(std::ostream& sout, int root, MPI_Comm comm) {
         sout << PRPL << "\t SOLVER_INMATFILT_SECOND_COEFFS: ";
         for (const auto& val : SOLVER_INMATFILT_SECOND_COEFFS) sout << val << " ";
         sout << NRM << std::endl;
+                // Print derivative usage mode
+        #ifdef USE_FIRST_DERIV_TWICE
+        sout << PRPL << "\t DERIV_MODE: Using first derivatives twice "
+            << "(USE_FIRST_DERIV_TWICE=1)" << NRM << std::endl;
+        #else
+        sout << PRPL << "\t DERIV_MODE: Using true second derivatives "
+            << "(USE_FIRST_DERIV_TWICE=0)" << NRM << std::endl;
+#endif
+// sout << PRPL << "\t FIRST_DERIV_IMPL:  " << _first_deriv->toString()  << std::endl;
+// sout << PRPL << "\t SECOND_DERIV_IMPL: " << _second_deriv->toString() << std::endl;
     }
 }
 }  // namespace dsolve

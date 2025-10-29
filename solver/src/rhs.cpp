@@ -684,57 +684,100 @@ void solverrhs_compact_derivs(double **unzipVarsRHS, double **uZipVars,
                               1.0, sz, bflag);
     }
 
-    // calculate the derivatives, on the copies if necessary
-    SOLVER_DERIVS->grad_x(grad_0_E0, E0_cpy, hx, sz, bflag);
-    SOLVER_DERIVS->grad_y(grad_1_E0, E0_cpy, hy, sz, bflag);  // needed
-    SOLVER_DERIVS->grad_z(grad_2_E0, E0_cpy, hz, sz, bflag);  // needed
+ // ====================================================
+// Toggle banner (compile with -DUSE_FIRST_DERIV_TWICE to enable)
+// ====================================================
 
-    SOLVER_DERIVS->grad_x(grad_0_E1, E1_cpy, hx, sz, bflag);  // needed
-    SOLVER_DERIVS->grad_y(grad_1_E1, E1_cpy, hy, sz, bflag);
-    SOLVER_DERIVS->grad_z(grad_2_E1, E1_cpy, hz, sz, bflag);  // needed
+// ====================================================
+// E0, E1, E2 — first derivatives ONLY (no grad2_* buffers present)
+// ====================================================
+SOLVER_DERIVS->grad_x(grad_0_E0, E0_cpy, hx, sz, bflag);
+SOLVER_DERIVS->grad_y(grad_1_E0, E0_cpy, hy, sz, bflag);  // needed
+SOLVER_DERIVS->grad_z(grad_2_E0, E0_cpy, hz, sz, bflag);  // needed
 
-    SOLVER_DERIVS->grad_x(grad_0_E2, E2_cpy, hx, sz, bflag);  // needed
-    SOLVER_DERIVS->grad_y(grad_1_E2, E2_cpy, hy, sz, bflag);  // needed
-    SOLVER_DERIVS->grad_z(grad_2_E2, E2_cpy, hz, sz, bflag);
+SOLVER_DERIVS->grad_x(grad_0_E1, E1_cpy, hx, sz, bflag);  // needed
+SOLVER_DERIVS->grad_y(grad_1_E1, E1_cpy, hy, sz, bflag);
+SOLVER_DERIVS->grad_z(grad_2_E1, E1_cpy, hz, sz, bflag);  // needed
 
-    SOLVER_DERIVS->grad_x(grad_0_A0, A0_cpy, hx, sz, bflag);
-    SOLVER_DERIVS->grad_y(grad_1_A0, A0_cpy, hy, sz, bflag);  // needed
-    SOLVER_DERIVS->grad_z(grad_2_A0, A0_cpy, hz, sz, bflag);  // needed
+SOLVER_DERIVS->grad_x(grad_0_E2, E2_cpy, hx, sz, bflag);  // needed
+SOLVER_DERIVS->grad_y(grad_1_E2, E2_cpy, hy, sz, bflag);  // needed
+SOLVER_DERIVS->grad_z(grad_2_E2, E2_cpy, hz, sz, bflag);
 
-    SOLVER_DERIVS->grad_x(grad_0_A1, A1_cpy, hx, sz, bflag);  // needed
-    SOLVER_DERIVS->grad_y(grad_1_A1, A1_cpy, hy, sz, bflag);
-    SOLVER_DERIVS->grad_z(grad_2_A1, A1_cpy, hz, sz, bflag);  // needed
+// ====================================================
+// A0 — first derivatives always; second via toggle
+// ====================================================
+SOLVER_DERIVS->grad_x(grad_0_A0, A0_cpy, hx, sz, bflag);
+SOLVER_DERIVS->grad_y(grad_1_A0, A0_cpy, hy, sz, bflag);  // needed
+SOLVER_DERIVS->grad_z(grad_2_A0, A0_cpy, hz, sz, bflag);  // needed
 
-    SOLVER_DERIVS->grad_x(grad_0_A2, A2_cpy, hx, sz, bflag);  // needed
-    SOLVER_DERIVS->grad_y(grad_1_A2, A2_cpy, hy, sz, bflag);  // needed
-    SOLVER_DERIVS->grad_z(grad_2_A2, A2_cpy, hz, sz, bflag);
+#ifdef USE_FIRST_DERIV_TWICE
+  SOLVER_DERIVS->grad_x(grad2_0_0_A0, grad_0_A0, hx, sz, bflag);
+  SOLVER_DERIVS->grad_y(grad2_1_1_A0, grad_1_A0, hy, sz, bflag);
+  SOLVER_DERIVS->grad_z(grad2_2_2_A0, grad_2_A0, hz, sz, bflag);
+#else
+  SOLVER_DERIVS->grad_xx(grad2_0_0_A0, A0_cpy, hx, sz, bflag);
+  SOLVER_DERIVS->grad_yy(grad2_1_1_A0, A0_cpy, hy, sz, bflag);
+  SOLVER_DERIVS->grad_zz(grad2_2_2_A0, A0_cpy, hz, sz, bflag);
+#endif
 
-    SOLVER_DERIVS->grad_x(grad_0_Gamma, Gamma_cpy, hx, sz, bflag);  // needed
-    SOLVER_DERIVS->grad_y(grad_1_Gamma, Gamma_cpy, hy, sz, bflag);  // needed
-    SOLVER_DERIVS->grad_z(grad_2_Gamma, Gamma_cpy, hz, sz, bflag);
+// ====================================================
+// A1
+// ====================================================
+SOLVER_DERIVS->grad_x(grad_0_A1, A1_cpy, hx, sz, bflag);  // needed
+SOLVER_DERIVS->grad_y(grad_1_A1, A1_cpy, hy, sz, bflag);
+SOLVER_DERIVS->grad_z(grad_2_A1, A1_cpy, hz, sz, bflag);  // needed
 
-    SOLVER_DERIVS->grad_x(grad_0_psi, psi_cpy, hx, sz, bflag);
-    SOLVER_DERIVS->grad_y(grad_1_psi, psi_cpy, hy, sz, bflag);
-    SOLVER_DERIVS->grad_z(grad_2_psi, psi_cpy, hz, sz, bflag);
+#ifdef USE_FIRST_DERIV_TWICE
+  SOLVER_DERIVS->grad_x(grad2_0_0_A1, grad_0_A1, hx, sz, bflag);
+  SOLVER_DERIVS->grad_y(grad2_1_1_A1, grad_1_A1, hy, sz, bflag);
+  SOLVER_DERIVS->grad_z(grad2_2_2_A1, grad_2_A1, hz, sz, bflag);
+#else
+  SOLVER_DERIVS->grad_xx(grad2_0_0_A1, A1_cpy, hx, sz, bflag);
+  SOLVER_DERIVS->grad_yy(grad2_1_1_A1, A1_cpy, hy, sz, bflag);
+  SOLVER_DERIVS->grad_zz(grad2_2_2_A1, A1_cpy, hz, sz, bflag);
+#endif
 
-    SOLVER_DERIVS->grad_xx(grad2_0_0_psi, psi_cpy, hx, sz, bflag); 
-    SOLVER_DERIVS->grad_yy(grad2_1_1_psi, psi_cpy, hy, sz, bflag); 
-    SOLVER_DERIVS->grad_zz(grad2_2_2_psi, psi_cpy, hz, sz, bflag); 
+// ====================================================
+// A2
+// ====================================================
+SOLVER_DERIVS->grad_x(grad_0_A2, A2_cpy, hx, sz, bflag);  // needed
+SOLVER_DERIVS->grad_y(grad_1_A2, A2_cpy, hy, sz, bflag);  // needed
+SOLVER_DERIVS->grad_z(grad_2_A2, A2_cpy, hz, sz, bflag);
 
-        // 2nd derivs for A0. 
-    SOLVER_DERIVS->grad_xx(grad2_0_0_A0, A0_cpy, hx, sz, bflag);
-    SOLVER_DERIVS->grad_yy(grad2_1_1_A0, A0_cpy, hy, sz, bflag);
-    SOLVER_DERIVS->grad_zz(grad2_2_2_A0, A0_cpy, hz, sz, bflag);
+#ifdef USE_FIRST_DERIV_TWICE
+  SOLVER_DERIVS->grad_x(grad2_0_0_A2, grad_0_A2, hx, sz, bflag);
+  SOLVER_DERIVS->grad_y(grad2_1_1_A2, grad_1_A2, hy, sz, bflag);
+  SOLVER_DERIVS->grad_z(grad2_2_2_A2, grad_2_A2, hz, sz, bflag);
+#else
+  SOLVER_DERIVS->grad_xx(grad2_0_0_A2, A2_cpy, hx, sz, bflag);
+  SOLVER_DERIVS->grad_yy(grad2_1_1_A2, A2_cpy, hy, sz, bflag);
+  SOLVER_DERIVS->grad_zz(grad2_2_2_A2, A2_cpy, hz, sz, bflag);
+#endif
 
-    // 2nd derivs for A1
-    SOLVER_DERIVS->grad_xx(grad2_0_0_A1, A1_cpy, hx, sz, bflag);
-    SOLVER_DERIVS->grad_yy(grad2_1_1_A1, A1_cpy, hy, sz, bflag);
-    SOLVER_DERIVS->grad_zz(grad2_2_2_A1, A1_cpy, hz, sz, bflag);
+// ====================================================
+// Gamma — first derivatives only (as before)
+// ====================================================
+SOLVER_DERIVS->grad_x(grad_0_Gamma, Gamma_cpy, hx, sz, bflag);  // needed
+SOLVER_DERIVS->grad_y(grad_1_Gamma, Gamma_cpy, hy, sz, bflag);  // needed
+SOLVER_DERIVS->grad_z(grad_2_Gamma, Gamma_cpy, hz, sz, bflag);
 
-    // 2nd derivs for A2
-    SOLVER_DERIVS->grad_xx(grad2_0_0_A2, A2_cpy, hx, sz, bflag); 
-    SOLVER_DERIVS->grad_yy(grad2_1_1_A2, A2_cpy, hy, sz, bflag);
-    SOLVER_DERIVS->grad_zz(grad2_2_2_A2, A2_cpy, hz, sz, bflag);
+// ====================================================
+// psi
+// ====================================================
+SOLVER_DERIVS->grad_x(grad_0_psi, psi_cpy, hx, sz, bflag);
+SOLVER_DERIVS->grad_y(grad_1_psi, psi_cpy, hy, sz, bflag);
+SOLVER_DERIVS->grad_z(grad_2_psi, psi_cpy, hz, sz, bflag);
+
+#ifdef USE_FIRST_DERIV_TWICE
+  SOLVER_DERIVS->grad_x(grad2_0_0_psi, grad_0_psi, hx, sz, bflag);
+  SOLVER_DERIVS->grad_y(grad2_1_1_psi, grad_1_psi, hy, sz, bflag);
+  SOLVER_DERIVS->grad_z(grad2_2_2_psi, grad_2_psi, hz, sz, bflag);
+#else
+  SOLVER_DERIVS->grad_xx(grad2_0_0_psi, psi_cpy, hx, sz, bflag);
+  SOLVER_DERIVS->grad_yy(grad2_1_1_psi, psi_cpy, hy, sz, bflag);
+  SOLVER_DERIVS->grad_zz(grad2_2_2_psi, psi_cpy, hz, sz, bflag);
+#endif
+
 
     dsolve::timer::t_deriv.stop();
 

@@ -298,6 +298,10 @@ if(DVEC_ZERO_ALLOC)
   add_definitions(-DDVEC_ZERO_ALLOC)
 endif()
 
+option(USE_FIRST_DERIV_TWICE "Use first derivative twice instead of second derivative" OFF)
+if(USE_FIRST_DERIV_TWICE)
+add_definitions(-DUSE_FIRST_DERIV_TWICE=1)
+endif()
 # === END REQUIRED CONFIGURATIONS FOR DENDRO ===
 
 include(FetchContent)
